@@ -1,9 +1,9 @@
-###############################################################################
-# Copyright (c) 2020, Lawrence Livermore National Security, LLC and other
-# RADIUSS-ENV project contributors. See top-level COPYRIGHT file for details.
+##############################################################################
+# Copyright (c) 2020, Lawrence Livermore National Security, LLC and
+# RADIUSS Stack project contributors. See the LICENSE file for details.
 #
 # SPDX-License-Identifier: MIT
-###############################################################################
+##############################################################################
 
 spack:
 
