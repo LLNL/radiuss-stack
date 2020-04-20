@@ -1,0 +1,83 @@
+##############################################################################
+# Copyright (c) 2019-2020, Lawrence Livermore National Security, LLC and
+# RADIUSS project contributors. See the LICENSE file for details.
+##############################################################################
+
+variables:
+  PROJECT_ALLOC_NAME: ${CI_PROJECT_NAME}_${CI_PIPELINE_ID}
+  BUILD_ROOT: ${CI_PROJECT_DIR}
+  SPACK_REPO: https://github.com/spack/spack.git
+  SPACK_REF: develop
+  SPACK_PATH: ${CI_BUILD_DIR}/radiuss-stack/spack
+
+# There are no tests for now
+stages:
+  - allocate_resources
+  - build
+  - release_resources
+
+####
+# Scripts
+.get_spack: &get_spack |
+  if [[ ! -d ${SPACK_PATH} ]]
+  then
+    mkdir -p ${SPACK_PATH}/..
+    git clone ${SPACK_REPO} --depth 1 --branch ${SPACK_REF} ${SPACK_PATH}
+  else
+    cd ${SPACK_PATH}
+    branch="${SPACK_REF}_$(date +%s)"
+    git fetch --depth 1 ${SPACK_REPO} ${SPACK_REF}:$branch
+    git checkout $branch
+    cd -
+  fi
+
+####
+# Shared configuration of jobs for quartz
+.on_quartz:
+  tags:
+    - shell
+    - quartz
+
+####
+# In pre-build phase, allocate a node for builds
+allocate_resources_build_quartz:
+  variables:
+    GIT_STRATEGY: none
+  extends: .on_quartz
+  stage: allocate_resources
+  script:
+    - salloc -N 1 -c 36 -p pdebug -t 30 --no-shell --job-name=${PROJECT_ALLOC_NAME}
+
+####
+# In post-build phase, deallocate resources
+# Note : `when: always` ensures this is run even on build phase failure
+release_resources_build_quartz:
+  variables:
+    GIT_STRATEGY: none
+  extends: .on_quartz
+  stage: release_resources
+  script:
+    - export JOBID=$(squeue -h --name=${PROJECT_ALLOC_NAME} --format=%A)
+    - if [[ -n "${JOBID}" ]]; then scancel ${JOBID}; fi
+  when: always
+
+####
+# Template
+.build_quartz:
+  extends: .on_quartz
+  stage: build
+  script:
+    - *get_spack
+    - . ${SPACK_PATH}/share/spack/setup-env.sh
+    - JOBID=$(squeue -h --name=${PROJECT_ALLOC_NAME} --format=%A)
+    - JOBID=$(if [[ -n "${JOBID}" ]]; then echo "--jobid=${JOBID}"; fi)
+    - EXEC_PREFIX="srun ${JOBID} -t 30 -N 1 -n 1 -c 36"
+    - ${EXEC_PREFIX} spack install
+
+####
+# Build jobs
+build_quartz_gcc_8_1_0:
+  variables:
+    COMPILER: "gcc@8.1.0"
+    SPEC: "@1.0.0%${COMPILER}"
+  extends: .build_quartz
