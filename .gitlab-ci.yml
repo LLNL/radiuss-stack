@@ -8,7 +8,7 @@ variables:
   BUILD_ROOT: ${CI_PROJECT_DIR}
   SPACK_REPO: https://github.com/spack/spack.git
   SPACK_REF: develop
-  SPACK_PATH: ${CI_BUILD_DIR}/radiuss-stack/spack
+  SPACK_PATH: ${CI_BUILDS_DIR}/radiuss-stack/spack
 
 # There are no tests for now
 stages:
