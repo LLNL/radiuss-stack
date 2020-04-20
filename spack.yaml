@@ -32,7 +32,7 @@ spack:
     - $radiuss-projects
     - $dependencies
 
-  views: false
+  view: false
 
 ################
   config:
