@@ -33,6 +33,7 @@ spack:
     - $dependencies
 
   view: false
+  concretization: together
 
 ################
   config:
