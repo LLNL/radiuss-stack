@@ -73,7 +73,7 @@ release_resources_build_quartz:
     - JOBID=$(squeue -h --name=${PROJECT_ALLOC_NAME} --format=%A)
     - JOBID=$(if [[ -n "${JOBID}" ]]; then echo "--jobid=${JOBID}"; fi)
     - EXEC_PREFIX="srun ${JOBID} -t 30 -N 1 -n 1 -c 36"
-    - ${EXEC_PREFIX} spack install
+    - ${EXEC_PREFIX} spack install .
 
 ####
 # Build jobs
