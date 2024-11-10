@@ -1,5 +1,5 @@
 [WARNING: Archived Repository]
-This repository was archived because it is not used and deprecated.
+This repository was archived because it is not used and deprecated. It was replaced by [RADIUSS Spack Testing](https://github.com/LLNL/radiuss-spack-testing).
 
 # RADIUSS Stack
 
